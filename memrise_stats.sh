@@ -1,7 +1,5 @@
 #!/bin/zsh
-"""
-Small script to drop in ~/bin/, that will scrape and run the stats for you
-"""
+# Small script to drop in ~/bin/, that will scrape and run the stats for you
 source ~/.zshrc
 
 JSON_FILE=/tmp/memrise_items.json
