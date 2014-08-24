@@ -40,8 +40,12 @@ class MemriseSpider(CrawlSpider):
             status = sel.xpath('div/div[contains(@class, "status")]/text()').extract()
             if not status:
                 status = "not learnt"
+            elif status == ["now"]:
+                status = "now"
             elif status == ['in about a day']:
-                status = [1, 'days']
+                status = [1, 'day']
+            elif status == ['in about an hour']:
+                status = [1, 'hour']
             else:
                 status = status[0].split()[1:]
                 status[0] = int(status[0])
