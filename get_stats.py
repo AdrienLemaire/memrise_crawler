@@ -28,6 +28,7 @@ def sort_status(el):
         'hour': 60,
         'hours': 60,
         'minutes': 1,
+        'seconds': 1.0/60,
     }
     return int(nb) * minutes[text]
 
