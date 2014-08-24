@@ -32,6 +32,18 @@ class MemriseSpider(CrawlSpider):
         )
 
     def parse_level(self, response):
-        item = MemriseItem()
-        import ipdb; ipdb.set_trace()
-
+        course = response.xpath('//h1[contains(@class, "course-name")]/text()').extract()[0]
+        for sel in response.xpath('//div[contains(@class, "thing text-text")]'):
+            item = MemriseItem()
+            item['course'] = course
+            item['item_id'] = sel.xpath('@data-thing-id').extract()[0]
+            status = sel.xpath('div/div[contains(@class, "status")]/text()').extract()
+            if not status:
+                status = "not learnt"
+            elif status == ['in about a day']:
+                status = [1, 'days']
+            else:
+                status = status[0].split()[1:]
+                status[0] = int(status[0])
+            item['status'] = status
+            yield item

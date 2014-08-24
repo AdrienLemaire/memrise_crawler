@@ -16,5 +16,5 @@ $ mkvirtualenv -p python2.7 scrapy
 ```Shell
 (scrapy)$ cd memrise/
 (scrapy)$ echo -e "USER=YOUR_USERNAME\nPASSWORD=YOUR_PASSWORD" > local_settings.py
-(scrapy)$ scrapy crawl memrise
+(scrapy)$ scrapy crawl memrise -e memrise_items.json
 ```
