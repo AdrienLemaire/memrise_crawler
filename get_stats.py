@@ -3,6 +3,7 @@
 import json
 from itertools import izip_longest
 import os
+import sys
 
 
 def format_status(status):
@@ -31,10 +32,10 @@ def sort_status(el):
     return int(nb) * minutes[text]
 
 
-def main():
+def main(json_file):
     data = []
     stats = {}
-    with open('memrise_items.json', 'r') as f:
+    with open(json_file, 'r') as f:
         data = json.load(f)
     print "Number of questions: {}\n".format(len(data))
 
@@ -69,4 +70,5 @@ def main():
     print '\n'.join(['\t\t'.join(t) for t in izip_longest(*messages, fillvalue='\t\t')])
 
 if __name__ == '__main__':
-    main()
+    json_file = 'memrise_items.json' if len(sys.argv) == 1 else sys.argv[1]
+    main(json_file)
