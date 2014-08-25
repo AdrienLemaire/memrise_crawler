@@ -11,6 +11,10 @@ def format_status(status):
         status = ' '.join([str(e) for e in status])
     elif status == 'now':
         status = 'now\t'
+    elif status == '1 days':
+        status = '1 day'
+    elif status == '1 hours':
+        status = '1 hour'
     return status
 
 
@@ -23,11 +27,12 @@ def sort_status(el):
     nb, text = el[0].split()
 
     minutes = {
-        'day': 24*60,
         'days': 24*60,
-        'hour': 60,
+        'day': 24*60,
         'hours': 60,
+        'hour': 60,
         'minutes': 1,
+        'minute': 1,
         'seconds': 1.0/60,
     }
     return int(nb) * minutes[text]
@@ -36,13 +41,20 @@ def sort_status(el):
 def main(json_file):
     data = []
     stats = {}
+    total_stats = {
+        'today': 0,
+        'next week': 0,
+        'next month': 0,
+        'long term': 0,
+        'not learnt': 0,
+    }
     with open(json_file, 'r') as f:
         data = json.load(f)
-    print "Number of questions: {}\n".format(len(data))
 
     #data = {d['course']: {d['item_id']: d['status']} for d in data}
 
     for d in data:
+        # Course stats
         if not d['course'] in stats:
             stats[d['course']] = {
                 'nb_questions': 1,
@@ -56,6 +68,36 @@ def main(json_file):
                 course['time_left'][status] = 1
             else:
                 course['time_left'][status] += 1
+
+        # Total stats
+        if d['status'] == 'now':
+            total_stats['today'] += 1
+        elif d['status'] == 'not learnt':
+            total_stats['not learnt'] += 1
+        elif 'minute' in d['status'][1]:
+            total_stats['today'] += 1
+        elif 'hour' in d['status'][1]:
+            total_stats['today'] += 1
+        elif d['status'][1] == 'day':
+            total_stats['today'] += 1
+        elif d['status'][1] == 'days' and 1 < d['status'][0] <= 7:
+            total_stats['next week'] += 1
+        elif d['status'][1] == 'days' and 7 < d['status'][0] <= 31:
+            total_stats['next month'] += 1
+        else:
+            total_stats['long term'] += 1
+
+
+    print "General stats:\n"
+    #for key, nb in total_stats.iteritems():
+        #print "\t{}: {} questions to review".format(key, nb)
+    print "\tNumber of questions: {}".format(len(data))
+    print "\tNb of reviews to do today: {}".format(total_stats['today'])
+    print "\tNb of unique reviews to do within 1 week: {}".format(total_stats['next week'])
+    print "\tNb of unique reviews to do within 1 month: {}".format(total_stats['next month'])
+    print "\tNb of unique reviews to do after 1 month: {}".format(total_stats['long term'])
+    print "\tNb of questions not learnt: {}".format(total_stats['not learnt'])
+    print "\n{}\n".format("~" * 80)
 
     messages = []
     for course, course_stats in stats.iteritems():

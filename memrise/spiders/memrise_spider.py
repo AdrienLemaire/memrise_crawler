@@ -48,6 +48,8 @@ class MemriseSpider(CrawlSpider):
                 status = [1, 'day']
             elif status == ['in about an hour']:
                 status = [1, 'hour']
+            elif status == ['in about a minute']:
+                status = [1, 'minute']
             else:
                 status = status[0].split()[1:]
                 status[0] = int(status[0])
