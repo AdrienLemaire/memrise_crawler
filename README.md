@@ -28,9 +28,10 @@ For example, the `get_stats.py` script will list the number of reviews to come:
 ![get_stats.py](http://i.imgur.com/pnUsz5w.png)
 
 
-I wrote a shell command to update the json file and return the stats:
+I wrote a shell command to update the json file and return the stats.
+Make sure `~/bin/` is in your PATH, then:
 ```Shell
-$ ln -s /path/to/memrise_stats ~/bin/  # make sure ~/bin/ is in your PATH
+$ ln -s /path/to/memrise_stats.sh ~/bin/memrise_stats
 $ memrise_stats
 ```
 
