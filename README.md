@@ -1,5 +1,5 @@
-Program to crawl the memrise web application and get useful statistics, like how
-many reviews will come in the day, etc.
+Program to crawl the memrise web application and get useful statistics for your
+**pinned courses**, like how many reviews will come in the day, etc.
 
 
 # Requirements
