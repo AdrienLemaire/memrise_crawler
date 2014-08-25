@@ -19,9 +19,6 @@ class MemriseSpider(CrawlSpider):
         ), callback='do_login'),
         Rule(LinkExtractor(
             restrict_xpaths=('//div[contains(@class, "pinned-courses")]/div/div/div[contains(@class, "detail")]')
-        ), follow=True),
-        Rule(LinkExtractor(
-            restrict_xpaths=('//div[contains(@class, "levels")]'),
         ), callback='parse_level'),
     )
 
@@ -32,6 +29,11 @@ class MemriseSpider(CrawlSpider):
         )
 
     def parse_level(self, response):
+        # If the course has several level, scrape them
+        pagination_selector = '//div[contains(@class, "levels")]/a/@href'
+        for url in response.xpath(pagination_selector).extract():
+            yield scrapy.Request(urljoin('http://www.memrise.com', url), callback=self.parse_level)
+
         course = response.xpath('//h1[contains(@class, "course-name")]/text()').extract()[0]
         for sel in response.xpath('//div[contains(@class, "thing text-text")]'):
             item = MemriseItem()

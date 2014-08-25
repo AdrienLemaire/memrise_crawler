@@ -61,7 +61,7 @@ def main(json_file):
     for course, course_stats in stats.iteritems():
         message = [
             "Stats for {}".format(course),
-            "Nb questions: {}\t".format(course_stats['nb_questions']),
+            "Nb questions: {}".format(course_stats['nb_questions']),
         ]
         for t, nb in sorted(course_stats['time_left'].iteritems(), key=sort_status):
             message.append("\t{}: {}".format(t, nb))
