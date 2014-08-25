@@ -34,7 +34,7 @@ $ ln -s /path/to/memrise_stats ~/bin/  # make sure ~/bin/ is in your PATH
 $ memrise_stats
 ```
 
-This will also create a file `/tmmp/memrise_global_stats.json`
+This will also create a file `/tmp/memrise_global_stats.json`
 
 
 
