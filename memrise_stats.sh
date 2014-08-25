@@ -26,5 +26,5 @@ scrapy crawl memrise -o $JSON_FILE --logfile=/var/log/memrise.log
 
 # Update kanji_learnt
 # https://github.com/Fandekasp/kanji_learnt.github.io
-cp /tmp/memrise_global_stats.json ${PROJECT_DIR}kanji_learnt.github.io/data/
+#cp /tmp/memrise_global_stats.json ${PROJECT_DIR}kanji_learnt.github.io/data/
 cd ${PROJECT_DIR}kanji_learnt.github.io/ && gia . && gcm "update memrise global stats" && gp

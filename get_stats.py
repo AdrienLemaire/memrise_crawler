@@ -5,7 +5,10 @@ from itertools import izip_longest
 import os
 import sys
 
-GENERAL_STATS_FILE = os.path.join('/', 'tmp', 'memrise_global_stats.json')
+GENERAL_STATS_FILE = os.path.join(
+    os.path.dirname(__file__),
+    '..', 'kanji_learnt.github.io',
+    'data', 'memrise_global_stats.json')
 
 
 def format_status(status):
@@ -89,7 +92,6 @@ def main(json_file):
         else:
             total_stats['long term'] += 1
 
-
     print "General stats:\n"
     #for key, nb in total_stats.iteritems():
         #print "\t{}: {} questions to review".format(key, nb)
@@ -102,8 +104,14 @@ def main(json_file):
     print "\n{}\n".format("~" * 80)
 
     # Save general stats in json file
+    global_stats = {}
+    with open(GENERAL_STATS_FILE, 'r') as f:
+        global_stats = json.load(f)
+
+    global_stats['yesterday'] = global_stats['today']
+    global_stats['today'] = total_stats
     with open(GENERAL_STATS_FILE, 'w+') as f:
-        f.write(json.dumps(total_stats))
+        f.write(json.dumps(global_stats, indent=4))
 
     messages = []
     for course, course_stats in stats.iteritems():
