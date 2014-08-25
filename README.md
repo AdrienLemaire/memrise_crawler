@@ -25,7 +25,7 @@ $ mkvirtualenv -p python2.7 scrapy
 Do whatever you want with the data in the json file.
 For example, the `get_stats.py` script will list the number of reviews to come:
 
-![get_stats.py](http://i.imgur.com/pnUsz5w.png)
+![get_stats.py](http://i.imgur.com/rgMy2fF.png)
 
 
 I wrote a shell command to update the json file and return the stats.

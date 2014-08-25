@@ -6,6 +6,9 @@ from itertools import izip_longest
 import os
 import sys
 
+from colorama import init, Fore
+init()
+
 GENERAL_STATS_FILE = os.path.join(
     os.path.dirname(__file__),
     '..', 'kanji_learnt.github.io',
@@ -105,6 +108,7 @@ def main(json_file):
         else:
             total_stats['long term'] += 1
 
+    print Fore.GREEN
     print "General stats:\n"
     #for key, nb in total_stats.iteritems():
         #print "\t{}: {} questions to review".format(key, nb)
@@ -115,6 +119,7 @@ def main(json_file):
     print "\tOther reviews to do after 1 month: {}".format(total_stats['long term'])
     print "\tNb of questions not learnt: {}".format(total_stats['not learnt'])
     print "\n{}\n".format("~" * 80)
+    print Fore.RESET
 
     # Save general stats in json file
     global_stats = {}
@@ -129,11 +134,21 @@ def main(json_file):
     messages = []
     for course, course_stats in stats.iteritems():
         message = [
-            "Stats for {}".format(course),
-            "Nb questions: {}".format(course_stats['nb_questions']),
+            "{}Stats for {}".format(Fore.BLUE, course),
+            "{}Nb questions: {}{}".format(
+                Fore.RESET,
+                Fore.GREEN,
+                course_stats['nb_questions'],
+            ),
         ]
         for t, nb in sorted(course_stats['time_left'].iteritems(), key=sort_status):
-            message.append("\t{}: {}".format(t, nb))
+            message.append("\t{}{}: {}".format({
+                    'minute': Fore.RED,
+                    'learnt': Fore.MAGENTA,
+                    'hour': Fore.YELLOW,
+                    'day': Fore.CYAN,
+                }[t.split()[1].rstrip('s') if ' ' in t else 'learnt'],
+                t, nb))
 
         messages.append(message)
 
