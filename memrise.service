@@ -7,4 +7,4 @@ Description=scraping of memrise items
 Nice=19
 IOSchedulingClass=2
 IOSchedulingPriority=7
-ExecStart=/home/dori/bin/memrise_stats
+ExecStart=/home/dori/bin/memrise_stats --save-kanji-learnt

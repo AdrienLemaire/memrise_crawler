@@ -24,13 +24,14 @@ scrapy crawl memrise -o $JSON_FILE --logfile=/var/log/memrise.log
 ./get_stats.py $JSON_FILE
 
 
-if [[ "$1" == "--no-git" ]]
+if [[ "$1" == "--save-kanji-learnt" ]]
 then
+    # Update kanji_learnt
+    # https://github.com/Fandekasp/kanji_learnt.github.io
+    #cp /tmp/memrise_global_stats.json ${PROJECT_DIR}kanji_learnt.github.io/data/
+    cd ${PROJECT_DIR}kanji_learnt.github.io/ && gia . && gcm "update memrise global stats" && gp
+else
     cd ${PROJECT_DIR}kanji_learnt.github.io/ && gCo data/memrise_global_stats.json
-    exit 0;
 fi
 
-# Update kanji_learnt
-# https://github.com/Fandekasp/kanji_learnt.github.io
-#cp /tmp/memrise_global_stats.json ${PROJECT_DIR}kanji_learnt.github.io/data/
-cd ${PROJECT_DIR}kanji_learnt.github.io/ && gia . && gcm "update memrise global stats" && gp
+
