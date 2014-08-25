@@ -96,10 +96,10 @@ def main(json_file):
     #for key, nb in total_stats.iteritems():
         #print "\t{}: {} questions to review".format(key, nb)
     print "\tNumber of questions: {}".format(len(data))
-    print "\tNb of reviews to do today: {}".format(total_stats['today'])
-    print "\tNb of unique reviews to do within 1 week: {}".format(total_stats['next week'])
-    print "\tNb of unique reviews to do within 1 month: {}".format(total_stats['next month'])
-    print "\tNb of unique reviews to do after 1 month: {}".format(total_stats['long term'])
+    print "\tNb of reviews to do within a day: {}".format(total_stats['today'])
+    print "\tOther reviews to do within 1 week: {}".format(total_stats['next week'])
+    print "\tOther reviews to do within 1 month: {}".format(total_stats['next month'])
+    print "\tOther reviews to do after 1 month: {}".format(total_stats['long term'])
     print "\tNb of questions not learnt: {}".format(total_stats['not learnt'])
     print "\n{}\n".format("~" * 80)
 
