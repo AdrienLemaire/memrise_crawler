@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from datetime import datetime
 import json
 from itertools import izip_longest
 import os
@@ -68,6 +69,11 @@ def main(json_file):
         else:
             course = stats[d['course']]
             status = format_status(d['status'])
+            if status == "1 hours":
+                status = "1 hour"
+            elif status == "1 days":
+                status = "1 day"
+
             course['nb_questions'] += 1
             if not status in course['time_left'].keys():
                 course['time_left'][status] = 1
@@ -75,16 +81,23 @@ def main(json_file):
                 course['time_left'][status] += 1
 
         # Total stats
+        now = datetime.now()
         if d['status'] == 'now':
+            total_stats['today'] += 1
+        elif 'minute' in d['status'][1]:
+            if now.hour == 23 and (d['status'][1] > 60 - now.minute):
+                total_stats['next week'] += 1
+            else:
+                total_stats['today'] += 1
+        elif 'hour' in d['status'][1]:
+            if d['status'][1] > 24 - now.hour:
+                total_stats['next week'] += 1
+            else:
+                total_stats['today'] += 1
+        elif d['status'][1] == 'day':
             total_stats['today'] += 1
         elif d['status'] == 'not learnt':
             total_stats['not learnt'] += 1
-        elif 'minute' in d['status'][1]:
-            total_stats['today'] += 1
-        elif 'hour' in d['status'][1]:
-            total_stats['today'] += 1
-        elif d['status'][1] == 'day':
-            total_stats['today'] += 1
         elif d['status'][1] == 'days' and 1 < d['status'][0] <= 7:
             total_stats['next week'] += 1
         elif d['status'][1] == 'days' and 7 < d['status'][0] <= 31:
@@ -96,7 +109,7 @@ def main(json_file):
     #for key, nb in total_stats.iteritems():
         #print "\t{}: {} questions to review".format(key, nb)
     print "\tNumber of questions: {}".format(len(data))
-    print "\tNb of reviews to do within a day: {}".format(total_stats['today'])
+    print "\tNb of reviews left for today: {}".format(total_stats['today'])
     print "\tOther reviews to do within 1 week: {}".format(total_stats['next week'])
     print "\tOther reviews to do within 1 month: {}".format(total_stats['next month'])
     print "\tOther reviews to do after 1 month: {}".format(total_stats['long term'])
