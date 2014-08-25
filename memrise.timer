@@ -1,0 +1,13 @@
+# /etc/systemd/user/memrise.timer
+
+[Unit]
+Description=daily scraping of memrise items
+
+[Timer]
+OnCalendar=daily
+# run immediately if we missed a backup for some reason
+Persistent=true
+AccuracySec=15
+
+[Install]
+WantedBy=timers.target

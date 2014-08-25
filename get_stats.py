@@ -5,6 +5,8 @@ from itertools import izip_longest
 import os
 import sys
 
+GENERAL_STATS_FILE = os.path.join('/', 'tmp', 'memrise_global_stats.json')
+
 
 def format_status(status):
     if status not in ['now', 'not learnt']:
@@ -98,6 +100,10 @@ def main(json_file):
     print "\tNb of unique reviews to do after 1 month: {}".format(total_stats['long term'])
     print "\tNb of questions not learnt: {}".format(total_stats['not learnt'])
     print "\n{}\n".format("~" * 80)
+
+    # Save general stats in json file
+    with open(GENERAL_STATS_FILE, 'w+') as f:
+        f.write(json.dumps(total_stats))
 
     messages = []
     for course, course_stats in stats.iteritems():
