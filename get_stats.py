@@ -88,17 +88,17 @@ def main(json_file):
         if d['status'] == 'now':
             total_stats['today'] += 1
         elif 'minute' in d['status'][1]:
-            if now.hour == 23 and (d['status'][1] > 60 - now.minute):
+            if now.hour == 23 and (d['status'][0] > 60 - now.minute):
                 total_stats['next week'] += 1
             else:
                 total_stats['today'] += 1
         elif 'hour' in d['status'][1]:
-            if d['status'][1] > 24 - now.hour:
+            if d['status'][0] > 24 - now.hour:
                 total_stats['next week'] += 1
             else:
                 total_stats['today'] += 1
         elif d['status'][1] == 'day':
-            total_stats['today'] += 1
+            total_stats['next week'] += 1
         elif d['status'] == 'not learnt':
             total_stats['not learnt'] += 1
         elif d['status'][1] == 'days' and 1 < d['status'][0] <= 7:
