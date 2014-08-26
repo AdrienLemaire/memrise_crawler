@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from datetime import datetime
+from datetime import datetime, date
 import json
 from itertools import izip_longest
 import os
@@ -126,8 +126,7 @@ def main(json_file):
     with open(GENERAL_STATS_FILE, 'r') as f:
         global_stats = json.load(f)
 
-    global_stats['yesterday'] = global_stats['today']
-    global_stats['today'] = total_stats
+    global_stats[date.today().isoformat()] = total_stats
     with open(GENERAL_STATS_FILE, 'w+') as f:
         f.write(json.dumps(global_stats, indent=4))
 
