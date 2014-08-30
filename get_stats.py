@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from datetime import datetime, date
 import json
@@ -55,6 +56,7 @@ def main(json_file):
         'next week': 0,
         'next month': 0,
         'long term': 0,
+        'star': 0,
         'not learnt': 0,
     }
     with open(json_file, 'r') as f:
@@ -105,19 +107,24 @@ def main(json_file):
             total_stats['next week'] += 1
         elif d['status'][1] == 'days' and 7 < d['status'][0] <= 31:
             total_stats['next month'] += 1
-        else:
+        elif d['status'][1] == 'days' and 31 < d['status'][0] <= 89:
             total_stats['long term'] += 1
+        else:
+            total_stats['star'] += 1
 
-    print Fore.GREEN
+
+    pre = "\t{}".format(Fore.GREEN)
+    pre_star = "\t{}".format(Fore.YELLOW)
     print "General stats:\n"
     #for key, nb in total_stats.iteritems():
         #print "\t{}: {} questions to review".format(key, nb)
-    print "\tNumber of questions: {}".format(len(data))
-    print "\tNb of reviews left for today: {}".format(total_stats['today'])
-    print "\tOther reviews to do within 1 week: {}".format(total_stats['next week'])
-    print "\tOther reviews to do within 1 month: {}".format(total_stats['next month'])
-    print "\tOther reviews to do after 1 month: {}".format(total_stats['long term'])
-    print "\tNb of questions not learnt: {}".format(total_stats['not learnt'])
+    print "{}Number of questions: {}".format(pre, len(data))
+    print "{}Nb of reviews left for today: {}".format(pre, total_stats['today'])
+    print "{}Other reviews to do within 1 week: {}".format(pre, total_stats['next week'])
+    print "{}Other reviews to do within 1 month: {}".format(pre, total_stats['next month'])
+    print "{}Other reviews to do after 1 month: {}".format(pre, total_stats['long term'])
+    print "{}★3+ months (perfect)★: {}".format(pre_star, total_stats['star'])
+    print "{}Nb of questions not learnt: {}".format(pre, total_stats['not learnt'])
     print "\n{}\n".format("~" * 80)
     print Fore.RESET
 
@@ -142,6 +149,7 @@ def main(json_file):
         ]
         for t, nb in sorted(course_stats['time_left'].iteritems(), key=sort_status):
             message.append("\t{}{}: {}".format({
+                    'second': Fore.RED,
                     'minute': Fore.RED,
                     'learnt': Fore.MAGENTA,
                     'hour': Fore.YELLOW,

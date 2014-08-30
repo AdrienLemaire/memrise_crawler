@@ -11,3 +11,15 @@ AccuracySec=15
 
 [Install]
 WantedBy=timers.target
+
+
+# /etc/systemd/user/memrise.service
+
+[Unit]
+Description=scraping of memrise items
+
+[Service]
+Nice=19
+IOSchedulingClass=2
+IOSchedulingPriority=7
+ExecStart=/home/dori/bin/memrise_stats --save-kanji-learnt
