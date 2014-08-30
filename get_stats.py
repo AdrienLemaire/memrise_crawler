@@ -89,6 +89,8 @@ def main(json_file):
         now = datetime.now()
         if d['status'] == 'now':
             total_stats['today'] += 1
+        elif 'second' in d['status'][1]:
+            total_stats['today'] += 1
         elif 'minute' in d['status'][1]:
             if now.hour == 23 and (d['status'][0] > 60 - now.minute):
                 total_stats['next week'] += 1
@@ -99,7 +101,7 @@ def main(json_file):
                 total_stats['next week'] += 1
             else:
                 total_stats['today'] += 1
-        elif d['status'][1] == 'day':
+        elif d['status'][1] == 'day' or d['status'] == [1, 'days']:
             total_stats['next week'] += 1
         elif d['status'] == 'not learnt':
             total_stats['not learnt'] += 1
@@ -123,7 +125,7 @@ def main(json_file):
     print "{}Other reviews to do within 1 week: {}".format(pre, total_stats['next week'])
     print "{}Other reviews to do within 1 month: {}".format(pre, total_stats['next month'])
     print "{}Other reviews to do after 1 month: {}".format(pre, total_stats['long term'])
-    print "{}★3+ months (perfect)★: {}".format(pre_star, total_stats['star'])
+    print "{}★★★ 3+ months (perfect): {} ★★★".format(pre_star, total_stats['star'])
     print "{}Nb of questions not learnt: {}".format(pre, total_stats['not learnt'])
     print "\n{}\n".format("~" * 80)
     print Fore.RESET
