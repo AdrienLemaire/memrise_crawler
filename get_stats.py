@@ -113,6 +113,7 @@ def main(json_file):
             total_stats['long term'] += 1
         else:
             total_stats['star'] += 1
+    total_stats['nb questions'] = len(data)
 
 
     pre = "\t{}".format(Fore.GREEN)
