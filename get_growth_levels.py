@@ -5,6 +5,7 @@
 import argparse
 import json
 import math
+import numpy as np
 import os.path
 import requests
 
@@ -23,42 +24,49 @@ def parse_args():
         default=INPUT_FILE, help='json file input (to get items ids)')
     parser.add_argument('-o', action="store", dest='output',
         default=ALL_ITEMS_FILE, help='json file output (to store items data)')
+    parser.add_argument('-n', action="store_true", dest='noquery',
+        help='do not query memrise and use the existing output file instead')
     return parser.parse_args()
 
 
-def main(input_file, output_file):
-    with open(input_file, 'r') as f:
-        data = json.load(f)
-    items = [d['item_id'] for d in data]
-    growth_levels = []
-    all_data = []
-    with requests.Session() as s:
-        url = "https://www.memrise.com/login/"
-        s.get(url, verify=True)  # get cookies
-        payload = {
-            'username': USERNAME,
-            'password': PASSWORD,
-            'csrfmiddlewaretoken': s.cookies['csrftoken'],
-        }
-        s.post(url, data=payload, headers={'Referer': url})  # login
-
-        for i in range(int(math.ceil(len(items)/438.0))):
-            list_ids = ','.join(items[i*438:i*438+438])
-            url = 'https://www.memrise.com/api/thing/stats/?thing_ids=[{}]'
-            r = s.get(url.format(list_ids))
-            data = json.loads(r.content)
-            all_data += data['things']
-            growth_levels += [d['growth_level'] for d in data['things']]
-
-    with open(output_file, 'w+') as f:
-        f.write(json.dumps(all_data, indent=4))
+def main(input_file, output_file, noquery):
+    if noquery:
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+            growth_levels = [d['growth_level'] for d in data]
+            accuracy = np.mean([d['accuracy'] for d in data])
+    else:
+        with open(input_file, 'r') as f:
+            data = json.load(f)
+        items = [d['item_id'] for d in data]
+        growth_levels = []
+        all_data = []
+        with requests.Session() as s:
+            url = "https://www.memrise.com/login/"
+            s.get(url, verify=True)  # get cookies
+            payload = {
+                'username': USERNAME,
+                'password': PASSWORD,
+                'csrfmiddlewaretoken': s.cookies['csrftoken'],
+            }
+            s.post(url, data=payload, headers={'Referer': url})  # login
+            for i in range(int(math.ceil(len(items)/438.0))):
+                list_ids = ','.join(items[i*438:i*438+438])
+                url = 'https://www.memrise.com/api/thing/stats/?thing_ids=[{}]'
+                r = s.get(url.format(list_ids))
+                data = json.loads(r.content)
+                all_data += data['things']
+                growth_levels += [d['growth_level'] for d in data['things']]
+        accuracy = np.mean([d['accuracy'] for d in all_data])
+        with open(output_file, 'w+') as f:
+            f.write(json.dumps(all_data, indent=4))
 
     print "List of my Memrise items levels"
     for i in range(min(growth_levels), max(growth_levels)):
         print "\t* level {}: {} items".format(i, growth_levels.count(i))
-
+    print "Average accuracy: {}%".format(accuracy)
 
 
 if __name__ == '__main__':
     args = parse_args()
-    main(args.input, args.output)
+    main(args.input, args.output, args.noquery)
