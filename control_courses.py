@@ -25,7 +25,8 @@ from local_settings import USERNAME, PASSWORD
 
 COURSES_ID = [351257, 351255]
 DIFF_FILE = os.path.join('data', 'daily_diff.json')
-ALL_DATA_FILE  = os.path.join('data', 'all_data.json')
+NEW_DATA_FILE  = os.path.join('data', 'all_data_new.json')
+OLD_DATA_FILE  = os.path.join('data', 'all_data_old.json')
 
 
 def parse_args():
@@ -34,15 +35,17 @@ def parse_args():
     parser.add_argument('-d', action="store", dest='diff',
         default=DIFF_FILE, help='diff file')
     parser.add_argument('-a', action="store", dest='all',
-        default=ALL_DATA_FILE, help='file to store all data')
+        default=NEW_DATA_FILE, help='file to store all data')
+    parser.add_argument('-n', action="store_true", dest='noquery',
+        help='do not query memrise and use the existing output file instead')
     return parser.parse_args()
 
 
-def main(diff_file, all_file):
-    all_data = {
-        'courses': [],
-        'levels': [],
-        'items': [],
+def query_api():
+    new_data = {
+        'courses': {},
+        'levels': {},
+        'items': {},
     }
     with requests.Session() as s:
         url = "https://www.memrise.com/login/"
@@ -54,16 +57,17 @@ def main(diff_file, all_file):
         }
         s.post(url, data=payload, headers={'Referer': url})  # login
         for course_id in COURSES_ID:
+            print "query course", course_id
             course_url = 'http://www.memrise.com/api/course/get/?course_id={}'
             rc = s.get(course_url.format(course_id))
             cdata = json.loads(rc.content)
-            all_data['courses'].append(cdata)
+            new_data['courses'][course_id] = cdata
             for level in cdata['course']['levels']:
-                print "query level"
+                print "query level", level['id']
                 level_url = 'http://www.memrise.com/api/level/get/?level_id={}'
                 rl = s.get(level_url.format(level['id']))
                 ldata = json.loads(rl.content)
-                all_data['levels'].append(ldata)
+                new_data['levels'][level['id']] = ldata
                 page = s.get('http://www.memrise.com{}'.format(
                     ldata['level']['url']))
                 tree = html.fromstring(page.text)
@@ -74,12 +78,67 @@ def main(diff_file, all_file):
                     item_url = 'http://www.memrise.com/api/thing/get/?thing_id={}'
                     ri = s.get(item_url.format(item_id))
                     idata = json.loads(ri.content)
-                    all_data['items'].append(idata)
+                    new_data['items'][item_id] = idata
+    with open(all_file, 'w+') as f:
+        f.write(json.dumps(new_data, indent=4))
 
-        with open(all_file, 'w+') as f:
-            f.write(json.dumps(all_data, indent=4))
+
+def main(diff_file, all_file, noquery):
+    # Load old data
+    with open(OLD_DATA_FILE, 'r') as f:
+        old_data = json.load(f)
+
+    # Load new data
+    if noquery:
+        with open(NEW_DATA_FILE, 'r') as f:
+            new_data = json.load(f)
+    else:
+        new_data = query_api()
+
+    # Report of activity
+    message = ''
+
+    # New words
+    items_id = set(old_data['items'].keys()) ^ set(new_data['items'].keys())
+    if items_id:
+        message += u"New words added:\n----------------\n"
+    for i in list(items_id):
+        item = new_data['items'][i]['thing']['columns']
+        if len(item.keys()) == 3:
+            message += u'\n* {}（{}）: {}'.format(item['1']['val'],
+            item['3']['val'], item['2']['val'])
+        elif len(item.keys()) == 5:
+            message += u'\n* {}（{}）: {}'.format(item['1']['val'],
+            item['6']['val'], item['5']['val'])
+
+    # words changed
+    if old_data['items'] != new_data['items']:
+        message += u"\n\nWords modified:\n---------------\n"
+    for i in list(set(new_data['items'].keys()) - items_id):
+        col1 = old_data['items'][i]['thing']['columns']
+        col2 = new_data['items'][i]['thing']['columns']
+        att1 = old_data['items'][i]['thing']['attributes']
+        att2 = new_data['items'][i]['thing']['attributes']
+        if att1 != att2 or col1 != col2:
+            message += u'\n\n* Item {} ({}) has changed!\n'.format(i,
+                col1['1']['val'])
+        if att1 != att2:
+            message += '\nDifferent attributes: '
+            message += '\n'.join([u' → '.join([att1[k]['val'], att2[k]['val']])
+                for k in att1.keys() if att1[k]['val'] != att2[k]['val']])
+        if col1 != col2:
+            for k in col1.keys():
+                if col1[k]['alts'] != col2[k]['alts']:
+                    message += '\nNew alts: '
+                    message += ','.join(set([d['val'] for d in
+                        col1[k]['alts']]) .symmetric_difference(
+                        set([d['val'] for d in col2[k]['alts']])))
+                if col1[k]['val'] != col2[k]['val']:
+                    message += '\nDifferent val: '
+                    message += u' → '.join([col1[k]['val'], col2[k]['val']])
+    print message
 
 
 if __name__ == '__main__':
     args = parse_args()
-    main(args.diff, args.all)
+    main(args.diff, args.all, args.noquery)
