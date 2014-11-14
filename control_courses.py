@@ -19,8 +19,15 @@ import math
 import numpy as np
 import os.path
 import requests
+from shutil import copyfile
+from sendmail import sendMail
+try:
+    from local_settings import USERNAME, PASSWORD
+except:
+    import warnings
+    warnings.warn('Please create a local_settings.py file')
 
-from local_settings import USERNAME, PASSWORD
+
 
 
 COURSES_ID = [351257, 351255]
@@ -79,21 +86,24 @@ def query_api():
                     ri = s.get(item_url.format(item_id))
                     idata = json.loads(ri.content)
                     new_data['items'][item_id] = idata
-    with open(all_file, 'w+') as f:
+    with open(new_file, 'w+') as f:
         f.write(json.dumps(new_data, indent=4))
 
 
-def main(diff_file, all_file, noquery):
+def main(diff_file, new_file, noquery):
     # Load old data
     with open(OLD_DATA_FILE, 'r') as f:
         old_data = json.load(f)
 
     # Load new data
     if noquery:
-        with open(NEW_DATA_FILE, 'r') as f:
+        with open(new_file, 'r') as f:
             new_data = json.load(f)
     else:
-        new_data = query_api()
+        # Copy previous backup to old data
+        copyfile(new_file, OLD_DATA_FILE)
+        # Build new backup
+        new_data = query_api(new_file)
 
     # Report of activity
     message = ''
@@ -101,42 +111,46 @@ def main(diff_file, all_file, noquery):
     # New words
     items_id = set(old_data['items'].keys()) ^ set(new_data['items'].keys())
     if items_id:
-        message += u"New words added:\n----------------\n"
+        message += u"<h1>New words added:</h1><ul>"
     for i in list(items_id):
         item = new_data['items'][i]['thing']['columns']
         if len(item.keys()) == 3:
-            message += u'\n* {}（{}）: {}'.format(item['1']['val'],
+            message += u'<li>{}（{}）: {}</li>'.format(item['1']['val'],
             item['3']['val'], item['2']['val'])
         elif len(item.keys()) == 5:
-            message += u'\n* {}（{}）: {}'.format(item['1']['val'],
+            message += u'<li>{}（{}）: {}</li>'.format(item['1']['val'],
             item['6']['val'], item['5']['val'])
+    if items_id:
+       message += '</ul>'
 
     # words changed
     if old_data['items'] != new_data['items']:
-        message += u"\n\nWords modified:\n---------------\n"
+        message += u"<h1>Words modified:</h1><ul>"
     for i in list(set(new_data['items'].keys()) - items_id):
         col1 = old_data['items'][i]['thing']['columns']
         col2 = new_data['items'][i]['thing']['columns']
         att1 = old_data['items'][i]['thing']['attributes']
         att2 = new_data['items'][i]['thing']['attributes']
         if att1 != att2 or col1 != col2:
-            message += u'\n\n* Item {} ({}) has changed!\n'.format(i,
+            message += u'<li>Item {} ({}) has changed!</li>'.format(i,
                 col1['1']['val'])
         if att1 != att2:
-            message += '\nDifferent attributes: '
-            message += '\n'.join([u' → '.join([att1[k]['val'], att2[k]['val']])
+            message += '<br />Different attributes: '
+            message += '<br />'.join([u' → '.join([att1[k]['val'], att2[k]['val']])
                 for k in att1.keys() if att1[k]['val'] != att2[k]['val']])
         if col1 != col2:
             for k in col1.keys():
                 if col1[k]['alts'] != col2[k]['alts']:
-                    message += '\nNew alts: '
+                    message += '<br />New alts:</b> '
                     message += ','.join(set([d['val'] for d in
                         col1[k]['alts']]) .symmetric_difference(
                         set([d['val'] for d in col2[k]['alts']])))
                 if col1[k]['val'] != col2[k]['val']:
-                    message += '\nDifferent val: '
+                    message += '<br />Different val:</b> '
                     message += u' → '.join([col1[k]['val'], col2[k]['val']])
-    print message
+    if old_data['items'] != new_data['items']:
+        message += '</ul>'
+    sendMail(message)
 
 
 if __name__ == '__main__':
