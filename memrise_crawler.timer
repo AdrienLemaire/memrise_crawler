@@ -1,0 +1,9 @@
+# /usr/lib/systemd/system/memrise_crawler.timer
+
+[Unit]
+Description=daily scraping of memrise items
+
+[Timer]
+OnCalendar=daily
+AccuracySec=12h
+Persistent=true

@@ -1,0 +1,11 @@
+# /usr/lib/systemd/system/memrise_control.service
+
+[Unit]
+Description=save backup of courses and send email
+
+[Service]
+Type=oneshot
+ExecStart=/home/dori/bin/control_courses
+Nice=19
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

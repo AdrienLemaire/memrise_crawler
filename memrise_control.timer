@@ -1,0 +1,9 @@
+# /usr/lib/systemd/system/memrise_control.timer
+
+[Unit]
+Description=daily check of all courses updates
+
+[Timer]
+OnCalendar=daily
+AccuracySec=12h
+Persistent=true

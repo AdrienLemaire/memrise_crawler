@@ -1,0 +1,11 @@
+# /usr/lib/systemd/system/memrise_crawler.service
+
+[Unit]
+Description=scraping of memrise items
+
+[Service]
+Type=oneshot
+ExecStart=/home/dori/bin/memrise_stats --save-kanji-learnt
+Nice=19
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

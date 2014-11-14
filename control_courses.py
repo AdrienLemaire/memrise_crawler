@@ -28,12 +28,14 @@ except:
     warnings.warn('Please create a local_settings.py file')
 
 
-
-
 COURSES_ID = [351257, 351255]
 DIFF_FILE = os.path.join('data', 'daily_diff.json')
 NEW_DATA_FILE  = os.path.join('data', 'all_data_new.json')
 OLD_DATA_FILE  = os.path.join('data', 'all_data_old.json')
+
+BLOCKQUOTE = '<blockquote class="gmail_quote" style="margin: 0px 0px 0px '\
+    '0.8ex; border-left-width: 1px; border-left-color: rgb(204, 204, 204); '\
+    'border-left-style: solid; padding-left: 1ex;">'
 
 
 def parse_args():
@@ -48,7 +50,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def query_api():
+def query_api(new_file):
     new_data = {
         'courses': {},
         'levels': {},
@@ -88,6 +90,7 @@ def query_api():
                     new_data['items'][item_id] = idata
     with open(new_file, 'w+') as f:
         f.write(json.dumps(new_data, indent=4))
+    return new_data
 
 
 def main(diff_file, new_file, noquery):
@@ -115,10 +118,10 @@ def main(diff_file, new_file, noquery):
     for i in list(items_id):
         item = new_data['items'][i]['thing']['columns']
         if len(item.keys()) == 3:
-            message += u'<li>{}（{}）: {}</li>'.format(item['1']['val'],
+            message += u'<li><b>{}</b>（{}）: {}</li>'.format(item['1']['val'],
             item['3']['val'], item['2']['val'])
         elif len(item.keys()) == 5:
-            message += u'<li>{}（{}）: {}</li>'.format(item['1']['val'],
+            message += u'<li><b>{}</b>（{}）: {}</li>'.format(item['1']['val'],
             item['6']['val'], item['5']['val'])
     if items_id:
        message += '</ul>'
@@ -131,23 +134,28 @@ def main(diff_file, new_file, noquery):
         col2 = new_data['items'][i]['thing']['columns']
         att1 = old_data['items'][i]['thing']['attributes']
         att2 = new_data['items'][i]['thing']['attributes']
+        mes = ''
         if att1 != att2 or col1 != col2:
-            message += u'<li>Item {} ({}) has changed!</li>'.format(i,
-                col1['1']['val'])
-        if att1 != att2:
-            message += '<br />Different attributes: '
-            message += '<br />'.join([u' → '.join([att1[k]['val'], att2[k]['val']])
-                for k in att1.keys() if att1[k]['val'] != att2[k]['val']])
-        if col1 != col2:
-            for k in col1.keys():
-                if col1[k]['alts'] != col2[k]['alts']:
-                    message += '<br />New alts:</b> '
-                    message += ','.join(set([d['val'] for d in
-                        col1[k]['alts']]) .symmetric_difference(
-                        set([d['val'] for d in col2[k]['alts']])))
-                if col1[k]['val'] != col2[k]['val']:
-                    message += '<br />Different val:</b> '
-                    message += u' → '.join([col1[k]['val'], col2[k]['val']])
+            if att1 != att2:
+                mes += '<br /><i>Different attributes:</i>{}'.format(BLOCKQUOTE)
+                mes += '<br />'.join([u' → '.join([att1[k]['val'],
+                    att2[k]['val']]) for k in att1.keys()
+                    if att1[k]['val'] != att2[k]['val']])
+                mes += '</blockquote>'
+            if col1 != col2:
+                for k in col1.keys():
+                    if col1[k]['alts'] != col2[k]['alts']:
+                        mes += '<br /><i>New alts:</i> '
+                        mes += ', '.join(set([d['val'] for d in
+                            col1[k]['alts']]) .symmetric_difference(
+                            set([d['val'] for d in col2[k]['alts']])))
+                    if col1[k]['val'] != col2[k]['val']:
+                        mes += u'<br /><i>Different val:</i> {}{}→ {}'\
+                            '</blockquote>'.format(col1[k]['val'], BLOCKQUOTE,
+                            col2[k]['val'])
+        if mes:
+            message += u'<li><b>{}</b> ({}):{}</li>'.format(
+                col1['1']['val'], i, mes)
     if old_data['items'] != new_data['items']:
         message += '</ul>'
     sendMail(message)
