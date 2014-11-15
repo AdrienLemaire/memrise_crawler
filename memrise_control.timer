@@ -7,3 +7,7 @@ Description=daily check of all courses updates
 OnCalendar=daily
 AccuracySec=12h
 Persistent=true
+Unit=memrise_control.service
+
+[Install]
+WantedBy=basic.target

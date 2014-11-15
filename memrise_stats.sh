@@ -1,6 +1,7 @@
 #!/bin/zsh
 # Small script to drop in ~/bin/, that will scrape and run the stats for you
-source ~/.zshrc
+source /home/dori/.virtualenvs/scrapy/bin/activate
+
 
 print "This operation takes about 16seconds depending on your system.
 Please be patient"

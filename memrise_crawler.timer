@@ -7,3 +7,7 @@ Description=daily scraping of memrise items
 OnCalendar=daily
 AccuracySec=12h
 Persistent=true
+Unit=memrise_crawler.service
+
+[Install]
+WantedBy=basic.target

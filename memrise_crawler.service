@@ -2,10 +2,14 @@
 
 [Unit]
 Description=scraping of memrise items
+Wants=memrise_crawler.timer
 
 [Service]
-Type=oneshot
+Type=simple
 ExecStart=/home/dori/bin/memrise_stats --save-kanji-learnt
 Nice=19
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7
+
+[Install]
+WantedBy=basic.target
