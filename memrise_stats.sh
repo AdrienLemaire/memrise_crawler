@@ -14,9 +14,7 @@ then
     \rm $JSON_FILE
 fi
 
-# Go to env
 cd ${PROJECT_DIR}memrise_crawler/
-workon scrapy
 
 # Update json
 scrapy crawl memrise -o $JSON_FILE --logfile=/var/log/memrise.log
