@@ -8,4 +8,4 @@ cd ${PROJECT_DIR}memrise_crawler/
 
 ./control_courses.py
 
-su - dori -c 'git add . && git commit -m "update backup" && git push'
+su - dori -c "cd ${PROJECT_DIR}memrise_crawler/ && git add . && git commit -m 'update backup' && git push"

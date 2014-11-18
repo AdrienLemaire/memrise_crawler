@@ -16,6 +16,7 @@ fi
 
 cd ${PROJECT_DIR}memrise_crawler/
 
+
 # Update json
 scrapy crawl memrise -o $JSON_FILE --logfile=/var/log/memrise.log
 
@@ -28,9 +29,9 @@ then
     # Update kanji_learnt
     # https://github.com/Fandekasp/kanji_learnt.github.io
     #cp /tmp/memrise_global_stats.json ${PROJECT_DIR}kanji_learnt.github.io/data/
-    su - dori -c 'git add . && git commit -m "update memrise global stats" && git push'
+    su - dori -c "cd ${PROJECT_DIR}kanji_learnt.github.io && git add . && git commit -m 'update memrise global stats' && git push"
 else
-    su - dori -c 'git checkout --ours -- data/memrise_global_stats.json'
+    su - dori -c "cd ${PROJECT_DIR}kanji_learnt.github.io && git checkout --ours -- data/memrise_global_stats.json"
 fi
 
 
