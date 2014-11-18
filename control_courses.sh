@@ -7,3 +7,5 @@ PROJECT_DIR=/home/dori/Projects/Personal/
 cd ${PROJECT_DIR}memrise_crawler/
 
 ./control_courses.py
+
+su - dori -c 'git add . && git commit -m "update backup" && git push'

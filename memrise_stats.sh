@@ -28,9 +28,9 @@ then
     # Update kanji_learnt
     # https://github.com/Fandekasp/kanji_learnt.github.io
     #cp /tmp/memrise_global_stats.json ${PROJECT_DIR}kanji_learnt.github.io/data/
-    su - dori -c 'cd ${PROJECT_DIR}kanji_learnt.github.io/ && gia . && gcm "update memrise global stats" && gp'
+    su - dori -c 'git add . && git commit -m "update memrise global stats" && git push'
 else
-    su - dori -c 'cd ${PROJECT_DIR}kanji_learnt.github.io/ && gCo data/memrise_global_stats.json'
+    su - dori -c 'git checkout --ours -- data/memrise_global_stats.json'
 fi
 
 
