@@ -1,5 +1,4 @@
-Program to crawl the memrise web application and get useful statistics for your
-**pinned courses**, like how many reviews will come in the day, etc.
+Tools to interact with Memrise
 
 
 # Requirements
@@ -10,7 +9,13 @@ $ mkvirtualenv -p python2.7 scrapy
 ```
 
 
-# Run the script
+# Statistics monitor
+
+Program to crawl the memrise web application and get useful statistics for your
+**pinned courses**, like how many reviews will come in the day, etc.
+
+
+## Run the script
 
 
 ```Shell
@@ -20,7 +25,7 @@ $ mkvirtualenv -p python2.7 scrapy
 ```
 
 
-# Use the data
+## Use the data
 
 Do whatever you want with the data in the json file.
 For example, the `get_stats.py` script will list the number of reviews to come:
@@ -39,7 +44,7 @@ This will also create a file `/tmp/memrise_global_stats.json`
 
 
 
-# Cron job
+## Cron job
 
 I also added a daily service to update the json files.
 ```Shell
@@ -48,4 +53,15 @@ $ for f in {memrise.service,memrise.timer};
 $ systemctl --user list-timers
 NEXT                         LEFT     LAST PASSED UNIT          ACTIVATES
 Tue 2014-08-26 00:00:00 JST  12h left n/a  n/a    memrise.timer memrise.service
+```
+
+# Download a course
+
+Find the ID of the course you want to download. For example,
+`http://www.memrise.com/course/556/jlpt-n2-vocab-9/` has ID 556 as indicated in
+the url.
+Then run the script:
+
+```Shell
+$ ./download_course.py -c 556
 ```

@@ -4,3 +4,4 @@ local_settings.py
 *swo
 memrise_items.json
 unofficial_doc.md
+data/
